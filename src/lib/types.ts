@@ -29,6 +29,7 @@ export interface GameState {
   currentPrizeIndex: number;
   currentWinner: Participant | null;
   winners: Winner[];
+  isOver: boolean;
 }
 
 export type GameAction =

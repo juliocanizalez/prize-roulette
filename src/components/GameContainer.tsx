@@ -35,15 +35,13 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         remainingParticipants: remaining,
         currentPrizeIndex: isOver ? state.currentPrizeIndex : nextIndex,
         currentWinner: winner,
-        ...(isOver ? {} : {}),
+        isOver,
       };
     }
     case 'ADVANCE_TO_NEXT_PRIZE': {
-      const nextIndex = state.currentPrizeIndex;
-      const isOver = nextIndex >= state.prizes.length || state.remainingParticipants.length === 0;
       return {
         ...state,
-        stage: isOver ? 'GAME_OVER' : 'READY_TO_SPIN',
+        stage: state.isOver ? 'GAME_OVER' : 'READY_TO_SPIN',
         currentWinner: null,
       };
     }
@@ -64,6 +62,7 @@ const initialState: GameState = {
   currentPrizeIndex: 0,
   currentWinner: null,
   winners: [],
+  isOver: false,
 };
 
 const GameContext = createContext<{ state: GameState; dispatch: Dispatch<GameAction> }>({
