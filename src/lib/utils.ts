@@ -8,8 +8,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const NEON_COLORS = [
-  '#00f0ff', '#ff00ff', '#9d00ff', '#00ff88',
-  '#ffe600', '#ff6600', '#ff0066', '#0066ff',
+  '#00f0ff', '#ff00ff', '#bf5fff', '#00ff88',
+  '#ffe600', '#ff6600', '#ff0066', '#4d94ff',
   '#00ccff', '#ff3399', '#66ff00', '#ff9900',
 ];
 

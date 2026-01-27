@@ -70,26 +70,28 @@ export default function Wheel({ participants, spinning, onSpinComplete }: WheelP
           const startAngle = i * segAngle;
           const endAngle = startAngle + segAngle;
           const midAngle = startAngle + segAngle / 2;
-          const labelPos = polarToCartesian(200, 200, 140, midAngle);
+          const labelPos = polarToCartesian(200, 200, 130, midAngle);
           const color = getSegmentColor(i);
 
           return (
             <g key={p.id}>
               <path
                 d={describeArc(200, 200, 190, startAngle, endAngle)}
-                fill={color + '33'}
+                fill={color + '55'}
                 stroke={color}
-                strokeWidth={1.5}
+                strokeWidth={2.5}
               />
               <text
                 x={labelPos.x}
                 y={labelPos.y}
                 fill="white"
-                fontSize={n > 20 ? 8 : n > 12 ? 10 : 12}
+                fontSize={n > 20 ? 14 : n > 12 ? 18 : 22}
+                fontWeight="bold"
                 textAnchor="middle"
                 dominantBaseline="central"
                 transform={`rotate(${midAngle}, ${labelPos.x}, ${labelPos.y})`}
                 className="pointer-events-none select-none"
+                style={{ textShadow: '0 0 4px rgba(0,0,0,0.8)' }}
               >
                 {p.name.length > 14 ? p.name.slice(0, 12) + '…' : p.name}
               </text>
