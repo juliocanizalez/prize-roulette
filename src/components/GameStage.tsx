@@ -87,17 +87,17 @@ export default function GameStage() {
       {/* Controls — right / bottom */}
       <div className="flex w-full flex-col items-center justify-center gap-6 p-4 md:w-[40%] md:p-8">
         <div className="glass-card w-full max-w-sm space-y-4 p-6 text-center">
-          <p className="text-lg text-white/50">Current Prize</p>
+          <p className="text-lg text-white/50">Premio Actual</p>
           <h2 className="gradient-text text-3xl font-bold md:text-5xl">{prize?.name}</h2>
           <p className="text-lg text-white/40">
-            Prize {state.currentPrizeIndex + 1} of {state.prizes.length} &middot;{' '}
-            {state.remainingParticipants.length} participants left
+            Premio {state.currentPrizeIndex + 1} de {state.prizes.length} &middot;{' '}
+            {state.remainingParticipants.length} participantes restantes
           </p>
         </div>
 
         {isPrizeAwarded && state.currentWinner && (
           <div className="glass-card w-full max-w-sm p-4 text-center">
-            <p className="text-lg text-white/50">Winner</p>
+            <p className="text-lg text-white/50">Ganador</p>
             <p className="gradient-text text-3xl font-bold">{state.currentWinner.name}</p>
           </div>
         )}
@@ -107,13 +107,13 @@ export default function GameStage() {
           disabled={!canSpin}
           className="neon-glow w-full max-w-sm rounded-xl bg-gradient-to-r from-neon-cyan to-neon-magenta px-8 py-6 text-3xl font-bold text-black transition hover:scale-105 active:scale-95 disabled:opacity-30 disabled:shadow-none disabled:hover:scale-100"
         >
-          {isSpinning ? 'Spinning...' : isPrizeAwarded ? 'Next Prize...' : 'SPIN'}
+          {isSpinning ? 'Girando...' : isPrizeAwarded ? 'Siguiente Premio...' : 'GIRAR'}
         </button>
 
         {/* Winners so far */}
         {state.winners.length > 0 && (
           <div className="glass-card w-full max-w-sm p-4">
-            <p className="mb-2 text-base font-semibold text-white/40 uppercase">Winners</p>
+            <p className="mb-2 text-base font-semibold text-white/40 uppercase">Ganadores</p>
             <div className="max-h-48 space-y-1 overflow-y-auto">
               {state.winners.map((w, i) => (
                 <div key={i} className="flex justify-between text-lg">

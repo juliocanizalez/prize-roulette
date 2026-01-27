@@ -54,14 +54,14 @@ export default function SetupForm() {
     <div className="flex h-full items-center justify-center p-4">
       <div className="glass-card w-full max-w-4xl p-6 md:p-8">
         <h1 className="gradient-text mb-6 text-center text-3xl font-bold md:text-4xl">
-          Prize Roulette
+          Ruleta de Premios
         </h1>
         <div className="flex flex-col gap-6 md:flex-row">
           {/* Participants Panel */}
           <div className="flex-1 space-y-3">
             <div className="flex items-center gap-2 text-neon-cyan">
               <Users size={20} />
-              <h2 className="text-lg font-semibold">Participants</h2>
+              <h2 className="text-lg font-semibold">Participantes</h2>
               {allParticipants.length > 0 && (
                 <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs">
                   {allParticipants.length}
@@ -72,13 +72,13 @@ export default function SetupForm() {
               onClick={() => fileRef.current?.click()}
               className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-white/20 p-3 text-sm text-white/60 transition hover:border-neon-cyan hover:text-neon-cyan"
             >
-              <Upload size={16} /> Upload CSV / JSON
+              <Upload size={16} /> Subir CSV / JSON
             </button>
             <input ref={fileRef} type="file" accept=".csv,.json" className="hidden" onChange={handleFile} />
             <textarea
               value={participantText}
               onChange={(e) => { setParticipantText(e.target.value); setParticipants([]); }}
-              placeholder="Or type names, one per line..."
+              placeholder="O escribe nombres, uno por línea..."
               rows={8}
               className="w-full resize-none rounded-lg border border-white/10 bg-white/5 p-3 text-sm text-white placeholder-white/30 outline-none focus:border-neon-cyan"
             />
@@ -88,7 +88,7 @@ export default function SetupForm() {
           <div className="flex-1 space-y-3">
             <div className="flex items-center gap-2 text-neon-magenta">
               <Trophy size={20} />
-              <h2 className="text-lg font-semibold">Prizes</h2>
+              <h2 className="text-lg font-semibold">Premios</h2>
               {prizes.length > 0 && (
                 <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs">
                   {prizes.length}
@@ -100,7 +100,7 @@ export default function SetupForm() {
                 value={newPrize}
                 onChange={(e) => setNewPrize(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addPrize()}
-                placeholder="Add a prize..."
+                placeholder="Agregar un premio..."
                 className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 outline-none focus:border-neon-magenta"
               />
               <button
@@ -128,7 +128,7 @@ export default function SetupForm() {
           disabled={!canStart}
           className="neon-glow mt-6 w-full rounded-xl bg-gradient-to-r from-neon-cyan to-neon-magenta px-6 py-3 text-lg font-bold text-black transition disabled:opacity-30 disabled:shadow-none"
         >
-          Start Game
+          Iniciar Juego
         </button>
       </div>
     </div>
