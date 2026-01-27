@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { useGame } from './GameContainer';
 import { parseParticipantText, parseCSV } from '../lib/utils';
-import { Upload, Plus, Trash2, Users, Trophy } from 'lucide-react';
+import { Upload, Plus, Trash2, Users, Trophy, GripVertical } from 'lucide-react';
 import type { Participant, Prize } from '../lib/types';
 
 export default function SetupForm() {
@@ -11,6 +11,8 @@ export default function SetupForm() {
   const [prizes, setPrizes] = useState<Prize[]>([]);
   const [newPrize, setNewPrize] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
 
   const parsedFromText = parseParticipantText(participantText);
   const allParticipants = participants.length > 0 ? participants : parsedFromText;
@@ -43,6 +45,16 @@ export default function SetupForm() {
 
   function removePrize(id: string) {
     setPrizes(prizes.filter((p) => p.id !== id));
+  }
+
+  function handleDragEnd() {
+    if (dragItem.current === null || dragOverItem.current === null) return;
+    const reordered = [...prizes];
+    const [moved] = reordered.splice(dragItem.current, 1);
+    reordered.splice(dragOverItem.current, 0, moved);
+    setPrizes(reordered);
+    dragItem.current = null;
+    dragOverItem.current = null;
   }
 
   function handleStart() {
@@ -111,9 +123,18 @@ export default function SetupForm() {
               </button>
             </div>
             <div className="max-h-52 space-y-1.5 overflow-y-auto pr-1">
-              {prizes.map((prize) => (
-                <div key={prize.id} className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 text-sm">
-                  <span>{prize.name}</span>
+              {prizes.map((prize, index) => (
+                <div
+                  key={prize.id}
+                  draggable
+                  onDragStart={() => { dragItem.current = index; }}
+                  onDragEnter={() => { dragOverItem.current = index; }}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDragEnd={handleDragEnd}
+                  className="flex cursor-grab items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm active:cursor-grabbing"
+                >
+                  <GripVertical size={14} className="shrink-0 text-white/30" />
+                  <span className="flex-1">{prize.name}</span>
                   <button onClick={() => removePrize(prize.id)} className="text-white/40 hover:text-red-400">
                     <Trash2 size={14} />
                   </button>
