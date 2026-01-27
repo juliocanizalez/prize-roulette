@@ -1,8 +1,10 @@
-import { useReducer, createContext, useContext, type Dispatch } from 'react';
+import { useReducer, useEffect, createContext, useContext, type Dispatch } from 'react';
 import type { GameState, GameAction } from '../lib/types';
 import SetupForm from './SetupForm';
 import GameStage from './GameStage';
 import GameOver from './GameOver';
+
+const STORAGE_KEY = 'prize-roulette-state';
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -65,6 +67,20 @@ const initialState: GameState = {
   isOver: false,
 };
 
+function loadState(): GameState {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return initialState;
+    const saved: GameState = JSON.parse(raw);
+    // If mid-spin or awarding, reset to a safe stage
+    if (saved.stage === 'SPINNING') saved.stage = 'READY_TO_SPIN';
+    if (saved.stage === 'PRIZE_AWARDED') saved.stage = 'READY_TO_SPIN';
+    return saved;
+  } catch {
+    return initialState;
+  }
+}
+
 const GameContext = createContext<{ state: GameState; dispatch: Dispatch<GameAction> }>({
   state: initialState,
   dispatch: () => {},
@@ -75,11 +91,15 @@ export function useGame() {
 }
 
 export default function GameContainer() {
-  const [state, dispatch] = useReducer(gameReducer, initialState);
+  const [state, dispatch] = useReducer(gameReducer, undefined, loadState);
+
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [state]);
 
   return (
     <GameContext.Provider value={{ state, dispatch }}>
-      <div className="h-dvh w-dvw overflow-hidden">
+      <div className="w-full">
         {state.stage === 'SETUP' && <SetupForm />}
         {state.stage === 'GAME_OVER' && <GameOver />}
         {state.stage !== 'SETUP' && state.stage !== 'GAME_OVER' && <GameStage />}

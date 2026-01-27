@@ -45,15 +45,3 @@ export function parseCSV(file: File): Promise<Participant[]> {
     });
   });
 }
-
-export function calculateTargetRotation(
-  winnerIndex: number,
-  totalSegments: number
-): number {
-  const segmentAngle = 360 / totalSegments;
-  const segmentCenter = segmentAngle * winnerIndex + segmentAngle / 2;
-  const fullSpins = (5 + Math.random() * 3) * 360;
-  // Pointer is at top (0°/360°), wheel rotates clockwise
-  // To land on segment, the segment center needs to be at the top
-  return fullSpins + (360 - segmentCenter);
-}

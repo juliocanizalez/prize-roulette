@@ -1,30 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useGame } from './GameContainer';
-import Wheel from './Wheel';
+import SlotReel from './SlotReel';
 import WinnerModal from './WinnerModal';
 import Confetti from './Confetti';
 import { Maximize2, Minimize2, RotateCcw } from 'lucide-react';
+import { useFullscreen } from '../lib/useFullscreen';
 import type { Participant } from '../lib/types';
-
-function useFullscreen() {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', handler);
-    return () => document.removeEventListener('fullscreenchange', handler);
-  }, []);
-
-  const toggle = () => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else {
-      document.documentElement.requestFullscreen?.();
-    }
-  };
-
-  return { isFullscreen, toggle };
-}
 
 export default function GameStage() {
   const { state, dispatch } = useGame();
@@ -55,29 +36,13 @@ export default function GameStage() {
   }, [isPrizeAwarded, dispatch]);
 
   return (
-    <div className="relative flex h-full flex-col md:flex-row">
+    <div className="flex h-dvh flex-col overflow-hidden md:flex-row">
       <Confetti fire={showConfetti} />
       <WinnerModal />
 
-      {/* Top-right controls */}
-      <div className="absolute right-4 top-4 z-20 flex gap-2">
-        <button
-          onClick={() => dispatch({ type: 'RESTART' })}
-          className="rounded-lg bg-white/10 p-2 text-white/60 transition hover:bg-white/20 hover:text-white"
-        >
-          <RotateCcw size={28} />
-        </button>
-        <button
-          onClick={toggle}
-          className="rounded-lg bg-white/10 p-2 text-white/60 transition hover:bg-white/20 hover:text-white"
-        >
-          {isFullscreen ? <Minimize2 size={28} /> : <Maximize2 size={28} />}
-        </button>
-      </div>
-
       {/* Wheel — left / top */}
-      <div className="flex flex-1 items-center justify-center p-4 md:p-8">
-        <Wheel
+      <div className="flex flex-1 items-center justify-center p-2 md:p-8">
+        <SlotReel
           participants={state.remainingParticipants}
           spinning={isSpinning}
           onSpinComplete={handleSpinComplete}
@@ -85,40 +50,58 @@ export default function GameStage() {
       </div>
 
       {/* Controls — right / bottom */}
-      <div className="flex w-full flex-col items-center justify-center gap-6 p-4 md:w-[40%] md:p-8">
-        <div className="glass-card w-full max-w-sm space-y-4 p-6 text-center">
-          <p className="text-lg text-white/50">Premio Actual</p>
-          <h2 className="gradient-text text-3xl font-bold md:text-5xl">{prize?.name}</h2>
-          <p className="text-lg text-white/40">
-            Premio {state.currentPrizeIndex + 1} de {state.prizes.length} &middot;{' '}
-            {state.remainingParticipants.length} participantes restantes
+      <div className="flex w-full flex-col items-center gap-2 overflow-y-auto p-2 md:w-[40%] md:gap-6 md:justify-center md:p-8">
+        {/* Controls row */}
+        <div className="flex w-full max-w-lg items-center justify-between">
+          <div className="text-xs md:text-2xl text-white/50">Privilegio Actual</div>
+          <div className="flex gap-1.5">
+            <button
+              onClick={() => dispatch({ type: 'RESTART' })}
+              className="rounded-lg bg-white/10 p-1.5 md:p-2 text-white/60 transition hover:bg-white/20 hover:text-white"
+            >
+              <RotateCcw className="size-4 md:size-8" />
+            </button>
+            <button
+              onClick={toggle}
+              className="rounded-lg bg-white/10 p-1.5 md:p-2 text-white/60 transition hover:bg-white/20 hover:text-white"
+            >
+              {isFullscreen ? <Minimize2 className="size-4 md:size-8" /> : <Maximize2 className="size-4 md:size-8" />}
+            </button>
+          </div>
+        </div>
+
+        <div className="glass-card w-full max-w-lg space-y-1 md:space-y-4 p-3 md:p-6 text-center">
+          <h2 className="gradient-text text-xl font-bold md:text-7xl">{prize?.name}</h2>
+          <p className="text-xs md:text-2xl text-white/40">
+            Privilegio {state.currentPrizeIndex + 1} de {state.prizes.length} &middot;{' '}
+            {state.remainingParticipants.length} participantes
           </p>
         </div>
 
         {isPrizeAwarded && state.currentWinner && (
-          <div className="glass-card w-full max-w-sm p-4 text-center">
-            <p className="text-lg text-white/50">Ganador</p>
-            <p className="gradient-text text-3xl font-bold">{state.currentWinner.name}</p>
+          <div className="glass-card w-full max-w-lg p-2 md:p-4 text-center">
+            <p className="text-xs md:text-2xl text-white/50">Ganador</p>
+            <p className="gradient-text text-lg md:text-5xl font-bold">{state.currentWinner.name}</p>
           </div>
         )}
 
         <button
           onClick={() => dispatch({ type: 'START_SPIN' })}
           disabled={!canSpin}
-          className="neon-glow w-full max-w-sm rounded-xl bg-gradient-to-r from-neon-cyan to-neon-magenta px-8 py-6 text-3xl font-bold text-black transition hover:scale-105 active:scale-95 disabled:opacity-30 disabled:shadow-none disabled:hover:scale-100"
+          className="neon-glow w-full max-w-lg rounded-xl bg-gradient-to-r from-neon-cyan to-neon-magenta px-4 py-3 text-lg md:px-10 md:py-8 md:text-5xl font-bold text-black transition hover:scale-105 active:scale-95 disabled:opacity-30 disabled:shadow-none disabled:hover:scale-100"
         >
-          {isSpinning ? 'Girando...' : isPrizeAwarded ? 'Siguiente Premio...' : 'GIRAR'}
+          {isSpinning ? 'Girando...' : isPrizeAwarded ? 'Siguiente...' : 'GIRAR'}
         </button>
 
         {/* Winners so far */}
         {state.winners.length > 0 && (
-          <div className="glass-card w-full max-w-sm p-4">
-            <p className="mb-2 text-base font-semibold text-white/40 uppercase">Ganadores</p>
-            <div className="max-h-48 space-y-1 overflow-y-auto">
+          <div className="glass-card w-full max-w-lg p-2 md:p-4">
+            <p className="mb-1 text-xs md:text-xl font-semibold text-white/40 uppercase">Ganadores</p>
+            <div className="max-h-32 md:max-h-72 space-y-1 overflow-y-auto">
               {state.winners.map((w, i) => (
-                <div key={i} className="flex justify-between text-lg">
+                <div key={i} className="flex justify-between gap-2 rounded-lg bg-white/5 px-2 py-1 text-sm md:px-3 md:py-2 md:text-2xl">
                   <span className="text-white/70">{w.participant.name}</span>
-                  <span className="text-neon-magenta">{w.prize.name}</span>
+                  <span className="text-neon-magenta shrink-0">{w.prize.name}</span>
                 </div>
               ))}
             </div>
