@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0a0a0f;
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-neon-cyan: #00f0ff;
+  --color-neon-magenta: #ff00ff;
+  --color-neon-purple: #9d00ff;
+  --color-neon-green: #00ff88;
+  --color-neon-yellow: #ffe600;
+  --color-neon-orange: #ff6600;
+  --color-neon-pink: #ff0066;
+  --color-neon-blue: #0066ff;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: white;
+  font-family: system-ui, -apple-system, sans-serif;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.glass-card {
+  backdrop-filter: blur(24px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+}
+
+.neon-glow {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3), 0 0 40px rgba(0, 240, 255, 0.1);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-neon-cyan), var(--color-neon-magenta));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
