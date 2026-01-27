@@ -70,8 +70,11 @@ export default function Wheel({ participants, spinning, onSpinComplete }: WheelP
           const startAngle = i * segAngle;
           const endAngle = startAngle + segAngle;
           const midAngle = startAngle + segAngle / 2;
-          const labelPos = polarToCartesian(200, 200, 130, midAngle);
           const color = getSegmentColor(i);
+          const fontSize = n <= 12 ? 14 : n <= 24 ? 10 : n <= 40 ? 7 : 5;
+          const maxChars = n > 30 ? 8 : n > 20 ? 12 : 14;
+          const label = p.name.length > maxChars ? p.name.slice(0, maxChars - 1) + '…' : p.name;
+          const offset = 50; // distance from center to start text
 
           return (
             <g key={p.id}>
@@ -82,18 +85,18 @@ export default function Wheel({ participants, spinning, onSpinComplete }: WheelP
                 strokeWidth={2.5}
               />
               <text
-                x={labelPos.x}
-                y={labelPos.y}
+                x={200 + offset}
+                y={200}
                 fill="white"
-                fontSize={n > 20 ? 14 : n > 12 ? 18 : 22}
+                fontSize={fontSize}
                 fontWeight="bold"
-                textAnchor="middle"
+                textAnchor="start"
                 dominantBaseline="central"
-                transform={`rotate(${midAngle}, ${labelPos.x}, ${labelPos.y})`}
+                transform={`rotate(${midAngle}, 200, 200)`}
                 className="pointer-events-none select-none"
                 style={{ textShadow: '0 0 4px rgba(0,0,0,0.8)' }}
               >
-                {p.name.length > 14 ? p.name.slice(0, 12) + '…' : p.name}
+                {label}
               </text>
             </g>
           );
