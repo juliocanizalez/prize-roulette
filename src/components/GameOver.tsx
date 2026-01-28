@@ -1,5 +1,6 @@
 import { useGame } from './GameContainer';
 import { PartyPopper, RotateCcw } from 'lucide-react';
+import { autoTextSize } from '../lib/utils';
 
 export default function GameOver() {
   const { state, dispatch } = useGame();
@@ -14,8 +15,8 @@ export default function GameOver() {
         <div className="space-y-2">
           {state.winners.map((w, i) => (
             <div key={i} className="flex items-center justify-between gap-4 rounded-lg bg-white/5 px-4 py-3 text-lg md:px-6 md:py-5 md:text-4xl">
-              <span className="font-medium">{w.participant.name}</span>
-              <span className="text-neon-magenta shrink-0">{w.prize.name}</span>
+              <span className={`font-medium ${autoTextSize(w.participant.name, 'row')}`}>{w.participant.name}</span>
+              <span className={`text-neon-magenta shrink-0 ${autoTextSize(w.prize.name, 'row')}`}>{w.prize.name}</span>
             </div>
           ))}
         </div>

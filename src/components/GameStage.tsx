@@ -5,6 +5,7 @@ import WinnerModal from './WinnerModal';
 import Confetti from './Confetti';
 import { Maximize2, Minimize2, RotateCcw } from 'lucide-react';
 import { useFullscreen } from '../lib/useFullscreen';
+import { autoTextSize } from '../lib/utils';
 import type { Participant } from '../lib/types';
 
 export default function GameStage() {
@@ -71,7 +72,7 @@ export default function GameStage() {
         </div>
 
         <div className="glass-card w-full max-w-lg space-y-1 md:space-y-4 p-3 md:p-6 text-center">
-          <h2 className="gradient-text text-xl font-bold md:text-7xl">{prize?.name}</h2>
+          <h2 className={`gradient-text font-bold ${autoTextSize(prize?.name ?? '', 'heading')}`}>{prize?.name}</h2>
           <p className="text-xs md:text-2xl text-white/40">
             Privilegio {state.currentPrizeIndex + 1} de {state.prizes.length} &middot;{' '}
             {state.remainingParticipants.length} participantes
@@ -81,7 +82,7 @@ export default function GameStage() {
         {isPrizeAwarded && state.currentWinner && (
           <div className="glass-card w-full max-w-lg p-2 md:p-4 text-center">
             <p className="text-xs md:text-2xl text-white/50">Ganador</p>
-            <p className="gradient-text text-lg md:text-5xl font-bold">{state.currentWinner.name}</p>
+            <p className={`gradient-text font-bold ${autoTextSize(state.currentWinner.name, 'subheading')}`}>{state.currentWinner.name}</p>
           </div>
         )}
 
@@ -100,8 +101,8 @@ export default function GameStage() {
             <div className="max-h-32 md:max-h-72 space-y-1 overflow-y-auto">
               {state.winners.map((w, i) => (
                 <div key={i} className="flex justify-between gap-2 rounded-lg bg-white/5 px-2 py-1 text-sm md:px-3 md:py-2 md:text-2xl">
-                  <span className="text-white/70">{w.participant.name}</span>
-                  <span className="text-neon-magenta shrink-0">{w.prize.name}</span>
+                  <span className={`text-white/70 ${autoTextSize(w.participant.name, 'row')}`}>{w.participant.name}</span>
+                  <span className={`text-neon-magenta shrink-0 ${autoTextSize(w.prize.name, 'row')}`}>{w.prize.name}</span>
                 </div>
               ))}
             </div>
