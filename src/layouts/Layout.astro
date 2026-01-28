@@ -10,6 +10,21 @@ const { title = 'Ruleta de Privilegios' } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
+    <script is:inline>
+      // Apply theme/font preferences immediately to prevent FOUC
+      (function() {
+        try {
+          var prefs = JSON.parse(localStorage.getItem('prize-roulette-prefs') || '{}');
+          var theme = prefs.theme || 'slate';
+          var fontScale = prefs.fontScale || 'medium';
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.setAttribute('data-font-scale', fontScale);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'slate');
+          document.documentElement.setAttribute('data-font-scale', 'medium');
+        }
+      })();
+    </script>
   </head>
   <body>
     <slot />

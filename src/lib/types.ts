@@ -38,5 +38,7 @@ export type GameAction =
   | { type: 'SPIN_COMPLETE'; winner: Participant }
   | { type: 'ACCEPT_WINNER' }
   | { type: 'REJECT_WINNER' }
+  | { type: 'REJECT_AND_SPIN' }
   | { type: 'ADVANCE_TO_NEXT_PRIZE' }
-  | { type: 'RESTART' };
+  | { type: 'RESTART' }
+  | { type: 'RESTART_WITH_DATA' };

@@ -1,5 +1,6 @@
 import { useReducer, useEffect, createContext, useContext, type Dispatch } from 'react';
 import type { GameState, GameAction } from '../lib/types';
+import { PreferencesProvider } from '../lib/PreferencesContext';
 import SetupForm from './SetupForm';
 import GameStage from './GameStage';
 import GameOver from './GameOver';
@@ -49,8 +50,17 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     }
     case 'REJECT_WINNER':
       return { ...state, stage: 'READY_TO_SPIN', currentWinner: null };
+    case 'REJECT_AND_SPIN':
+      return { ...state, stage: 'SPINNING', currentWinner: null };
     case 'RESTART':
       return initialState;
+    case 'RESTART_WITH_DATA':
+      return {
+        ...initialState,
+        stage: 'SETUP',
+        participants: state.participants,
+        prizes: state.prizes,
+      };
     default:
       return state;
   }
@@ -72,9 +82,26 @@ function loadState(): GameState {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return initialState;
     const saved: GameState = JSON.parse(raw);
+
     // If mid-spin or awarding, reset to a safe stage
     if (saved.stage === 'SPINNING') saved.stage = 'READY_TO_SPIN';
     if (saved.stage === 'PRIZE_AWARDED') saved.stage = 'READY_TO_SPIN';
+
+    // If no participants/prizes, go back to setup
+    if (saved.participants.length === 0 || saved.prizes.length === 0) {
+      return initialState;
+    }
+
+    // If no remaining participants but not in terminal state, go to game over
+    if (
+      saved.remainingParticipants.length === 0 &&
+      saved.stage !== 'SETUP' &&
+      saved.stage !== 'GAME_OVER'
+    ) {
+      saved.stage = 'GAME_OVER';
+      saved.isOver = true;
+    }
+
     return saved;
   } catch {
     return initialState;
@@ -98,12 +125,14 @@ export default function GameContainer() {
   }, [state]);
 
   return (
-    <GameContext.Provider value={{ state, dispatch }}>
-      <div className="w-full">
-        {state.stage === 'SETUP' && <SetupForm />}
-        {state.stage === 'GAME_OVER' && <GameOver />}
-        {state.stage !== 'SETUP' && state.stage !== 'GAME_OVER' && <GameStage />}
-      </div>
-    </GameContext.Provider>
+    <PreferencesProvider>
+      <GameContext.Provider value={{ state, dispatch }}>
+        <div className="w-full">
+          {state.stage === 'SETUP' && <SetupForm />}
+          {state.stage === 'GAME_OVER' && <GameOver />}
+          {state.stage !== 'SETUP' && state.stage !== 'GAME_OVER' && <GameStage />}
+        </div>
+      </GameContext.Provider>
+    </PreferencesProvider>
   );
 }
