@@ -1,23 +1,55 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0a0a0f;
+  /* Base colors - these are overridden by data-theme */
+  --color-bg: hsl(222.2 84% 4.9%);
   --color-surface: rgba(255, 255, 255, 0.05);
   --color-border: rgba(255, 255, 255, 0.1);
-  --color-neon-cyan: #00f0ff;
-  --color-neon-magenta: #ff00ff;
-  --color-neon-purple: #9d00ff;
-  --color-neon-green: #00ff88;
-  --color-neon-yellow: #ffe600;
-  --color-neon-orange: #ff6600;
-  --color-neon-pink: #ff0066;
-  --color-neon-blue: #0066ff;
+  --color-primary: hsl(217.2 91.2% 59.8%);
+  --color-accent: hsl(263.4 70% 50.4%);
+
+  /* Font scale - overridden by data-font-scale */
+  --font-scale: 1;
+}
+
+/* Slate Theme (Default) */
+:root,
+[data-theme="slate"] {
+  --color-bg: hsl(222.2 84% 4.9%);
+  --color-primary: hsl(217.2 91.2% 59.8%);
+  --color-accent: hsl(263.4 70% 50.4%);
+}
+
+/* Ocean Theme */
+[data-theme="ocean"] {
+  --color-bg: hsl(200 50% 5%);
+  --color-primary: hsl(187 85% 53%);
+  --color-accent: hsl(160 84% 39%);
+}
+
+/* Forest Theme */
+[data-theme="forest"] {
+  --color-bg: hsl(20 14% 4%);
+  --color-primary: hsl(142.1 76.2% 36.3%);
+  --color-accent: hsl(47.9 95.8% 53.1%);
+}
+
+/* Font Scale */
+[data-font-scale="small"] {
+  --font-scale: 0.85;
+}
+[data-font-scale="medium"] {
+  --font-scale: 1;
+}
+[data-font-scale="large"] {
+  --font-scale: 1.2;
 }
 
 body {
   background-color: var(--color-bg);
   color: white;
   font-family: system-ui, -apple-system, sans-serif;
+  font-size: calc(1rem * var(--font-scale));
   min-height: 100dvh;
 }
 
@@ -29,12 +61,252 @@ body {
 }
 
 .neon-glow {
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3), 0 0 40px rgba(0, 240, 255, 0.1);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 30%, transparent),
+              0 0 40px color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-neon-cyan), var(--color-neon-magenta));
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Wide-screen utilities - aspect-ratio based detection
+   Works for TV displays, desktop browsers, and mobile casting to TV */
+@media (min-aspect-ratio: 4/3) {
+  .wide\:hidden {
+    display: none !important;
+  }
+  .wide\:block {
+    display: block !important;
+  }
+  .wide\:flex {
+    display: flex !important;
+  }
+  .wide\:w-\[35\%\] {
+    width: 35%;
+  }
+  .wide\:w-\[65\%\] {
+    width: 65%;
+  }
+  .wide\:max-w-lg {
+    max-width: 32rem;
+  }
+  .wide\:max-w-2xl {
+    max-width: 42rem;
+  }
+  .wide\:max-w-5xl {
+    max-width: 64rem;
+  }
+  .wide\:max-w-6xl {
+    max-width: 72rem;
+  }
+  .wide\:max-w-\[700px\] {
+    max-width: 700px;
+  }
+  .wide\:max-h-\[90vh\] {
+    max-height: 90vh;
+  }
+  .wide\:space-y-0 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .wide\:space-y-2 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+  }
+  .wide\:space-y-3 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+  }
+  .wide\:p-4 {
+    padding: 1rem;
+  }
+  .wide\:p-5 {
+    padding: 1.25rem;
+  }
+  .wide\:p-6 {
+    padding: 1.5rem;
+  }
+  .wide\:px-3 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  .wide\:px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  .wide\:py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .wide\:py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+  .wide\:gap-2 {
+    gap: 0.5rem;
+  }
+  .wide\:gap-3 {
+    gap: 0.75rem;
+  }
+  .wide\:gap-4 {
+    gap: 1rem;
+  }
+  .wide\:gap-8 {
+    gap: 2rem;
+  }
+  .wide\:mb-0 {
+    margin-bottom: 0;
+  }
+  .wide\:mb-4 {
+    margin-bottom: 1rem;
+  }
+  .wide\:mb-6 {
+    margin-bottom: 1.5rem;
+  }
+  .wide\:mt-4 {
+    margin-top: 1rem;
+  }
+  .wide\:mt-6 {
+    margin-top: 1.5rem;
+  }
+  .wide\:mt-8 {
+    margin-top: 2rem;
+  }
+  .wide\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .wide\:text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  .wide\:text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+  .wide\:text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+  .wide\:text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  .wide\:text-3xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+  .wide\:text-4xl {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+  .wide\:text-5xl {
+    font-size: 3rem;
+    line-height: 1;
+  }
+  .wide\:size-4 {
+    width: 1rem;
+    height: 1rem;
+  }
+  .wide\:size-5 {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .wide\:size-6 {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .wide\:size-8 {
+    width: 2rem;
+    height: 2rem;
+  }
+  .wide\:size-9 {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+  .wide\:size-10 {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .wide\:size-12 {
+    width: 3rem;
+    height: 3rem;
+  }
+  .wide\:h-1 {
+    height: 0.25rem;
+  }
+  .wide\:w-48 {
+    width: 12rem;
+  }
+  .wide\:w-64 {
+    width: 16rem;
+  }
+  .wide\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wide\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Legacy landscape utilities for backward compatibility on small mobile screens */
+@media (orientation: landscape) and (max-height: 500px) {
+  .landscape\:hidden {
+    display: none !important;
+  }
+  .landscape\:max-w-lg {
+    max-width: 32rem;
+  }
+  .landscape\:max-h-\[90vh\] {
+    max-height: 90vh;
+  }
+  .landscape\:space-y-0 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .landscape\:space-y-2 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+  }
+  .landscape\:p-4 {
+    padding: 1rem;
+  }
+  .landscape\:px-3 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  .landscape\:py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .landscape\:gap-2 {
+    gap: 0.5rem;
+  }
+  .landscape\:mb-0 {
+    margin-bottom: 0;
+  }
+  .landscape\:text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  .landscape\:text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+  .landscape\:text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  .landscape\:size-4 {
+    width: 1rem;
+    height: 1rem;
+  }
 }

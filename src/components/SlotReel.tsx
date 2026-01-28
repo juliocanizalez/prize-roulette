@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef, useSyncExternalStore } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { getSegmentColor } from '../lib/utils';
+import { usePreferences } from '../lib/PreferencesContext';
 import type { Participant } from '../lib/types';
 
 interface SlotReelProps {
@@ -10,26 +11,45 @@ interface SlotReelProps {
 }
 
 const TILE_HEIGHT_SM = 56;
+const TILE_HEIGHT_WIDE = 100;
 const TILE_HEIGHT_MD = 120;
 const VISIBLE_SM = 3;
+const VISIBLE_WIDE = 5;
 const VISIBLE_MD = 5;
 const REPEATS = 10;
 
 const mdQuery = typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)') : null;
+const wideQuery = typeof window !== 'undefined' ? window.matchMedia('(min-aspect-ratio: 4/3)') : null;
+
 function subscribe(cb: () => void) {
   mdQuery?.addEventListener('change', cb);
-  return () => mdQuery?.removeEventListener('change', cb);
+  wideQuery?.addEventListener('change', cb);
+  return () => {
+    mdQuery?.removeEventListener('change', cb);
+    wideQuery?.removeEventListener('change', cb);
+  };
 }
+
 function getIsMd() {
   return mdQuery?.matches ?? true;
 }
 
+function getIsWide() {
+  return wideQuery?.matches ?? false;
+}
+
 export default function SlotReel({ participants, spinning, onSpinComplete }: SlotReelProps) {
   const isMd = useSyncExternalStore(subscribe, getIsMd, () => true);
+  const isWide = useSyncExternalStore(subscribe, getIsWide, () => false);
   const controls = useAnimation();
   const hasSpunRef = useRef(false);
-  const TILE_HEIGHT = isMd ? TILE_HEIGHT_MD : TILE_HEIGHT_SM;
-  const VISIBLE_COUNT = isMd ? VISIBLE_MD : VISIBLE_SM;
+  const { preferences } = usePreferences();
+
+  // On wide screens (16:9), use intermediate tile size
+  // On desktop (non-wide), use full MD size
+  // On mobile, use SM size
+  const TILE_HEIGHT = isWide ? TILE_HEIGHT_WIDE : (isMd ? TILE_HEIGHT_MD : TILE_HEIGHT_SM);
+  const VISIBLE_COUNT = isWide ? VISIBLE_WIDE : (isMd ? VISIBLE_MD : VISIBLE_SM);
   const n = participants.length;
   const viewportHeight = VISIBLE_COUNT * TILE_HEIGHT;
   const centerOffset = Math.floor(VISIBLE_COUNT / 2) * TILE_HEIGHT;
@@ -72,7 +92,7 @@ export default function SlotReel({ participants, spinning, onSpinComplete }: Slo
   }
 
   return (
-    <div className="relative w-full max-w-[400px] md:max-w-[600px] mx-auto">
+    <div className="relative w-full max-w-[400px] md:max-w-[600px] wide:max-w-[700px] mx-auto">
       {/* Viewport */}
       <div
         className="relative overflow-hidden rounded-xl border border-white/10"
@@ -80,23 +100,23 @@ export default function SlotReel({ participants, spinning, onSpinComplete }: Slo
       >
         {/* Highlight bar in center */}
         <div
-          className="pointer-events-none absolute left-0 right-0 z-10 border-y-2 border-neon-cyan"
+          className="pointer-events-none absolute left-0 right-0 z-10 border-y-2 border-primary"
           style={{
             top: centerOffset,
             height: TILE_HEIGHT,
-            boxShadow: '0 0 20px var(--color-neon-cyan), inset 0 0 20px rgba(0,240,255,0.1)',
-            background: 'rgba(0,240,255,0.05)',
+            boxShadow: '0 0 20px var(--color-primary), inset 0 0 20px color-mix(in srgb, var(--color-primary) 10%, transparent)',
+            background: 'color-mix(in srgb, var(--color-primary) 5%, transparent)',
           }}
         />
 
         {/* Top/bottom fade gradients */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-16 bg-gradient-to-b from-[#0a0a0f] to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-16 bg-gradient-to-t from-[#0a0a0f] to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-16 bg-gradient-to-b from-bg to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-16 bg-gradient-to-t from-bg to-transparent" />
 
         {/* Scrolling column */}
         <motion.div animate={controls} style={{ y: 0 }}>
           {tiles.map((tile, i) => {
-            const color = getSegmentColor(tile.participant.id ? participants.indexOf(tile.participant) : i % n);
+            const color = getSegmentColor(tile.participant.id ? participants.indexOf(tile.participant) : i % n, preferences.theme);
             return (
               <div
                 key={i}
@@ -104,7 +124,7 @@ export default function SlotReel({ participants, spinning, onSpinComplete }: Slo
                 style={{ height: TILE_HEIGHT }}
               >
                 <span
-                  className="text-base md:text-4xl font-bold truncate max-w-[85vw] md:max-w-[520px] px-4"
+                  className="text-base md:text-4xl wide:text-3xl font-bold truncate max-w-[85vw] md:max-w-[520px] wide:max-w-[620px] px-4"
                   style={{ color, textShadow: `0 0 8px ${color}66` }}
                 >
                   {tile.participant.name}
