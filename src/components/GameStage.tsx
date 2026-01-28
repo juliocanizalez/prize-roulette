@@ -72,7 +72,7 @@ export default function GameStage() {
         </div>
 
         <div className="glass-card w-full max-w-lg space-y-1 md:space-y-4 p-3 md:p-6 text-center">
-          <h2 className={`gradient-text font-bold ${autoTextSize(prize?.name ?? '', 'heading')}`}>{prize?.name}</h2>
+          <h2 className={`gradient-text font-bold truncate ${autoTextSize(prize?.name ?? '', 'subheading')}`}>{prize?.name}</h2>
           <p className="text-xs md:text-2xl text-white/40">
             Privilegio {state.currentPrizeIndex + 1} de {state.prizes.length} &middot;{' '}
             {state.remainingParticipants.length} participantes

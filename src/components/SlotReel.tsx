@@ -104,7 +104,7 @@ export default function SlotReel({ participants, spinning, onSpinComplete }: Slo
                 style={{ height: TILE_HEIGHT }}
               >
                 <span
-                  className="text-xl md:text-4xl font-bold truncate max-w-[320px] md:max-w-[520px] px-4"
+                  className="text-base md:text-4xl font-bold truncate max-w-[85vw] md:max-w-[520px] px-4"
                   style={{ color, textShadow: `0 0 8px ${color}66` }}
                 >
                   {tile.participant.name}
