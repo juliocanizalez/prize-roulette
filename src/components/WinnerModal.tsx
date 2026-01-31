@@ -1,9 +1,11 @@
 import { useGame } from './GameContainer';
+import { usePreferences } from '../lib/PreferencesContext';
 import { Trophy, RotateCcw, Check } from 'lucide-react';
 import { autoTextSize } from '../lib/utils';
 
 export default function WinnerModal() {
   const { state, dispatch } = useGame();
+  const { preferences } = usePreferences();
   if (state.stage !== 'AWAITING_DECISION' || !state.currentWinner) return null;
 
   const prize = state.prizes[state.currentPrizeIndex];
@@ -14,7 +16,7 @@ export default function WinnerModal() {
         <Trophy className="mx-auto text-accent hidden md:block landscape:hidden wide:hidden" size={96} />
         <Trophy className="mx-auto text-accent md:hidden landscape:hidden wide:hidden" size={48} />
         <div className="landscape:space-y-0 wide:space-y-0">
-          <p className="mb-1 text-lg md:text-3xl landscape:text-lg landscape:mb-0 wide:text-lg wide:mb-0 text-white/60">Ganador de</p>
+          <p className="mb-1 text-lg md:text-3xl landscape:text-lg landscape:mb-0 wide:text-lg wide:mb-0 text-white/60">{preferences.labels.winnerOf}</p>
           <p className={`font-bold text-accent landscape:text-2xl wide:text-2xl ${autoTextSize(prize.name, 'subheading')}`}>{prize.name}</p>
         </div>
         <p className={`gradient-text font-extrabold landscape:text-3xl wide:text-3xl ${autoTextSize(state.currentWinner.name, 'heading')}`}>{state.currentWinner.name}</p>

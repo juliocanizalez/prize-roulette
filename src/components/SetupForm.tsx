@@ -1,8 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useGame } from './GameContainer';
+import { usePreferences } from '../lib/PreferencesContext';
 import { parseCSV } from '../lib/utils';
 import { Upload, Plus, Trash2, Users, Trophy, ChevronUp, ChevronDown, Maximize2, Minimize2, Settings, X } from 'lucide-react';
 import { useFullscreen } from '../lib/useFullscreen';
+import { useIsHorizontal } from '../lib/useIsHorizontal';
+import { useDragResize } from '../lib/useDragResize';
 import SettingsModal from './SettingsModal';
 import type { Participant, Prize } from '../lib/types';
 
@@ -132,6 +135,7 @@ function TagInput({
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
         onBlur={addFromInput}
+        enterKeyHint="enter"
         placeholder={participants.length === 0 ? 'Escribe un nombre y presiona Enter...' : ''}
         className="flex-1 min-w-[140px] bg-transparent text-sm text-white placeholder-white/30 outline-none py-1"
       />
@@ -184,14 +188,22 @@ function PrizeRow({
 
 export default function SetupForm() {
   const { state, dispatch } = useGame();
+  const { preferences, setSetupSplitRatio } = usePreferences();
   const [participants, setParticipants] = useState<Participant[]>(state.participants);
   const [prizes, setPrizes] = useState<Prize[]>(state.prizes);
   const [newPrize, setNewPrize] = useState('');
   const [showSettings, setShowSettings] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen();
+  const isHorizontal = useIsHorizontal();
+  const onRatioChange = useCallback((r: number) => setSetupSplitRatio(r), [setSetupSplitRatio]);
+  const { containerRef, handleRef, isDragging, handleProps } = useDragResize({
+    defaultRatio: 0.5,
+    onRatioChange,
+    enabled: isHorizontal,
+  });
 
-  const canStart = participants.length >= 2 && prizes.length >= 1;
+  const canStart = participants.length >= preferences.minParticipants && prizes.length >= 1;
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -264,7 +276,7 @@ export default function SetupForm() {
     <div className="mx-auto max-w-4xl wide:max-w-5xl px-4 py-6 wide:px-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="gradient-text text-3xl font-bold md:text-4xl">
-          Ruleta de Privilegios
+          {preferences.appTitle}
         </h1>
         <div className="flex gap-1.5">
           <button
@@ -286,9 +298,15 @@ export default function SetupForm() {
       <SettingsModal open={showSettings} onClose={() => setShowSettings(false)} />
 
       <div className="glass-card w-full p-6 md:p-8 wide:p-6">
-        <div className="flex flex-col gap-6 md:flex-row wide:gap-8">
+        <div
+          ref={containerRef}
+          className={`flex flex-col gap-6 md:flex-row md:gap-0 wide:flex-row wide:gap-0${isDragging ? ' select-none' : ''}`}
+        >
           {/* Participants Panel */}
-          <div className="flex-1 space-y-3">
+          <div
+            className="flex-1 min-w-0 space-y-3"
+            style={isHorizontal ? { flex: `0 0 ${preferences.setupSplitRatio * 100}%` } : undefined}
+          >
             <div className="flex items-center gap-2 text-primary">
               <Users size={20} />
               <h2 className="text-lg font-semibold">Participantes</h2>
@@ -323,8 +341,17 @@ export default function SetupForm() {
             />
           </div>
 
+          {/* Drag Handle */}
+          <div
+            ref={handleRef}
+            {...handleProps}
+            className="hidden md:flex wide:flex items-center justify-center cursor-col-resize touch-none px-2 group"
+          >
+            <div className="w-1 h-8 rounded-full bg-white/20 transition group-hover:bg-white/40 group-active:bg-primary" />
+          </div>
+
           {/* Prizes Panel */}
-          <div className="flex-1 space-y-3">
+          <div className="flex-1 min-w-0 space-y-3">
             <div className="flex items-center gap-2 text-accent">
               <Trophy size={20} />
               <h2 className="text-lg font-semibold">Privilegios</h2>
@@ -385,8 +412,8 @@ export default function SetupForm() {
       >
         {canStart
           ? 'Iniciar Juego'
-          : participants.length < 2
-            ? `Faltan participantes (${participants.length}/2 mín.)`
+          : participants.length < preferences.minParticipants
+            ? `Faltan participantes (${participants.length}/${preferences.minParticipants} mín.)`
             : 'Agrega al menos 1 privilegio'}
       </a>
     </div>

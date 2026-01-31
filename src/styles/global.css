@@ -34,6 +34,27 @@
   --color-accent: hsl(47.9 95.8% 53.1%);
 }
 
+/* Sunset Theme */
+[data-theme="sunset"] {
+  --color-bg: hsl(15 30% 5%);
+  --color-primary: hsl(25 95% 55%);
+  --color-accent: hsl(340 80% 55%);
+}
+
+/* Neon Theme */
+[data-theme="neon"] {
+  --color-bg: hsl(260 40% 4%);
+  --color-primary: hsl(180 100% 50%);
+  --color-accent: hsl(300 100% 50%);
+}
+
+/* Midnight Theme */
+[data-theme="midnight"] {
+  --color-bg: hsl(240 50% 3%);
+  --color-primary: hsl(210 100% 70%);
+  --color-accent: hsl(45 100% 60%);
+}
+
 /* Font Scale */
 [data-font-scale="small"] {
   --font-scale: 0.85;
@@ -252,6 +273,12 @@ body {
   }
   .wide\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .wide\:flex-row {
+    flex-direction: row;
+  }
+  .wide\:gap-0 {
+    gap: 0;
   }
 }
 

@@ -1,10 +1,30 @@
 import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from 'react';
 import type { ThemeId, FontScale } from './themes';
 
+export interface Labels {
+  winnerOf: string;
+  allWinners: string;
+  winner: string;
+  winners: string;
+}
+
+export const defaultLabels: Labels = {
+  winnerOf: 'Ganador de',
+  allWinners: 'Todos los Ganadores',
+  winner: 'Ganador',
+  winners: 'Ganadores',
+};
+
 export interface Preferences {
   theme: ThemeId;
   fontScale: FontScale;
   fullscreenPreferred: boolean;
+  confettiEnabled: boolean;
+  appTitle: string;
+  labels: Labels;
+  minParticipants: number;
+  setupSplitRatio: number;
+  gameSplitRatio: number;
 }
 
 interface PreferencesContextValue {
@@ -12,6 +32,12 @@ interface PreferencesContextValue {
   setTheme: (theme: ThemeId) => void;
   setFontScale: (scale: FontScale) => void;
   setFullscreenPreferred: (preferred: boolean) => void;
+  setConfettiEnabled: (enabled: boolean) => void;
+  setAppTitle: (title: string) => void;
+  setLabels: (labels: Labels) => void;
+  setMinParticipants: (min: number) => void;
+  setSetupSplitRatio: (ratio: number) => void;
+  setGameSplitRatio: (ratio: number) => void;
 }
 
 const STORAGE_KEY = 'prize-roulette-prefs';
@@ -20,13 +46,24 @@ const defaultPreferences: Preferences = {
   theme: 'slate',
   fontScale: 'medium',
   fullscreenPreferred: false,
+  confettiEnabled: true,
+  appTitle: 'Ruleta de Privilegios',
+  labels: { ...defaultLabels },
+  minParticipants: 2,
+  setupSplitRatio: 0.5,
+  gameSplitRatio: 0.65,
 };
 
 function loadPreferences(): Preferences {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultPreferences;
-    return { ...defaultPreferences, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    return {
+      ...defaultPreferences,
+      ...parsed,
+      labels: { ...defaultLabels, ...(parsed.labels ?? {}) },
+    };
   } catch {
     return defaultPreferences;
   }
@@ -89,9 +126,33 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     setPreferences((prev) => ({ ...prev, fullscreenPreferred }));
   };
 
+  const setConfettiEnabled = (confettiEnabled: boolean) => {
+    setPreferences((prev) => ({ ...prev, confettiEnabled }));
+  };
+
+  const setAppTitle = (appTitle: string) => {
+    setPreferences((prev) => ({ ...prev, appTitle }));
+  };
+
+  const setLabels = (labels: Labels) => {
+    setPreferences((prev) => ({ ...prev, labels }));
+  };
+
+  const setMinParticipants = (minParticipants: number) => {
+    setPreferences((prev) => ({ ...prev, minParticipants: Math.max(1, Math.min(10, minParticipants)) }));
+  };
+
+  const setSetupSplitRatio = (setupSplitRatio: number) => {
+    setPreferences((prev) => ({ ...prev, setupSplitRatio }));
+  };
+
+  const setGameSplitRatio = (gameSplitRatio: number) => {
+    setPreferences((prev) => ({ ...prev, gameSplitRatio }));
+  };
+
   return (
     <PreferencesContext.Provider
-      value={{ preferences, setTheme, setFontScale, setFullscreenPreferred }}
+      value={{ preferences, setTheme, setFontScale, setFullscreenPreferred, setConfettiEnabled, setAppTitle, setLabels, setMinParticipants, setSetupSplitRatio, setGameSplitRatio }}
     >
       {children}
     </PreferencesContext.Provider>

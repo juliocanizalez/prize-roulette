@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useGame } from './GameContainer';
+import { usePreferences } from '../lib/PreferencesContext';
 import { ChevronLeft, ChevronRight, PartyPopper, RotateCcw, Trophy } from 'lucide-react';
 import { autoTextSize } from '../lib/utils';
 
@@ -33,14 +34,14 @@ function WinnerSlide({ winner, index, total }: { winner: { participant: { name: 
   );
 }
 
-function SummarySlide({ winners }: { winners: { participant: { name: string }; prize: { name: string } }[] }) {
+function SummarySlide({ winners, allWinnersLabel }: { winners: { participant: { name: string }; prize: { name: string } }[]; allWinnersLabel: string }) {
   return (
     <div className="flex flex-1 flex-col items-center px-4 overflow-hidden">
       {/* Header */}
       <div className="mb-4 flex items-center gap-2 text-center landscape:mb-6 wide:mb-6">
         <PartyPopper className="size-6 text-accent md:size-8 landscape:size-10 wide:size-10" />
         <h2 className="gradient-text text-xl font-bold md:text-3xl landscape:text-3xl wide:text-3xl">
-          Todos los Ganadores
+          {allWinnersLabel}
         </h2>
         <PartyPopper className="size-6 text-accent md:size-8 landscape:size-10 wide:size-10" />
       </div>
@@ -94,14 +95,17 @@ function DotIndicators({ current, total, onSelect }: { current: number; total: n
 
 export default function GameOver() {
   const { state, dispatch } = useGame();
+  const { preferences } = usePreferences();
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const total = state.winners.length;
-  const showingSummary = currentIndex === total; // Summary is the "extra" slide at index N
+  const winnersCount = state.winners.length;
+  const hasSummary = winnersCount > 1;
+  const totalSlides = hasSummary ? winnersCount + 1 : winnersCount;
+  const showingSummary = hasSummary && currentIndex === winnersCount;
 
   const goNext = useCallback(() => {
-    setCurrentIndex((i) => Math.min(i + 1, total));
-  }, [total]);
+    setCurrentIndex((i) => Math.min(i + 1, totalSlides - 1));
+  }, [totalSlides]);
 
   const goPrev = useCallback(() => {
     setCurrentIndex((i) => Math.max(i - 1, 0));
@@ -128,12 +132,12 @@ export default function GameOver() {
       {/* Main content area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {showingSummary ? (
-          <SummarySlide winners={state.winners} />
+          <SummarySlide winners={state.winners} allWinnersLabel={preferences.labels.allWinners} />
         ) : (
           <WinnerSlide
             winner={state.winners[currentIndex]}
             index={currentIndex}
-            total={total}
+            total={winnersCount}
           />
         )}
       </div>
@@ -141,6 +145,7 @@ export default function GameOver() {
       {/* Navigation controls */}
       <div className="mt-4 flex flex-col items-center gap-4 landscape:mt-3 landscape:gap-3 wide:mt-4 wide:gap-3">
         {/* Arrow buttons + dots */}
+        {totalSlides > 1 && (
         <div className="flex w-full max-w-md items-center justify-center gap-4 landscape:max-w-lg wide:max-w-lg">
           {/* Left arrow */}
           <button
@@ -155,20 +160,21 @@ export default function GameOver() {
           {/* Dot indicators */}
           <DotIndicators
             current={currentIndex}
-            total={total + 1} // +1 for summary slide
+            total={totalSlides}
             onSelect={setCurrentIndex}
           />
 
           {/* Right arrow */}
           <button
             onClick={goNext}
-            disabled={currentIndex === total}
+            disabled={currentIndex === totalSlides - 1}
             aria-label="Siguiente"
             className="flex size-12 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-white/10 md:size-14 landscape:size-12 wide:size-12"
           >
             <ChevronRight className="size-6 md:size-8 landscape:size-6 wide:size-6" />
           </button>
         </div>
+        )}
 
         {/* Action button */}
         <a
