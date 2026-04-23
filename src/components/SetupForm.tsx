@@ -2,11 +2,12 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useGame } from './GameContainer';
 import { usePreferences } from '../lib/PreferencesContext';
 import { parseCSV } from '../lib/utils';
-import { Upload, Plus, Trash2, Users, Trophy, ChevronUp, ChevronDown, Maximize2, Minimize2, Settings, X } from 'lucide-react';
+import { Upload, Plus, Trash2, Users, Trophy, ChevronUp, ChevronDown, Maximize2, Minimize2, Settings, X, Database } from 'lucide-react';
 import { useFullscreen } from '../lib/useFullscreen';
 import { useIsHorizontal } from '../lib/useIsHorizontal';
 import { useDragResize } from '../lib/useDragResize';
 import SettingsModal from './SettingsModal';
+import FirebaseListLoader from './FirebaseListLoader';
 import type { Participant, Prize } from '../lib/types';
 
 function ParticipantTag({
@@ -193,6 +194,8 @@ export default function SetupForm() {
   const [prizes, setPrizes] = useState<Prize[]>(state.prizes);
   const [newPrize, setNewPrize] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const [showFirebaseLoader, setShowFirebaseLoader] = useState(false);
+  const [showFirebaseLoaderPrizes, setShowFirebaseLoaderPrizes] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen();
   const isHorizontal = useIsHorizontal();
@@ -242,6 +245,22 @@ export default function SetupForm() {
 
   function clearParticipants() {
     setParticipants([]);
+  }
+
+  function handleFirebaseLoad(names: string[]) {
+    const newParticipants = names.map((name, i) => ({
+      id: `p-${Date.now()}-${i}`,
+      name,
+    }));
+    setParticipants((prev) => [...prev, ...newParticipants]);
+  }
+
+  function handleFirebaseLoadPrizes(names: string[]) {
+    const newPrizes = names.map((name, i) => ({
+      id: `prize-${Date.now()}-${i}`,
+      name,
+    }));
+    setPrizes((prev) => [...prev, ...newPrizes]);
   }
 
   function addPrize() {
@@ -296,6 +315,18 @@ export default function SetupForm() {
         </div>
       </div>
       <SettingsModal open={showSettings} onClose={() => setShowSettings(false)} />
+      <FirebaseListLoader
+        open={showFirebaseLoader}
+        onClose={() => setShowFirebaseLoader(false)}
+        onLoad={handleFirebaseLoad}
+        listType="participantes"
+      />
+      <FirebaseListLoader
+        open={showFirebaseLoaderPrizes}
+        onClose={() => setShowFirebaseLoaderPrizes(false)}
+        onLoad={handleFirebaseLoadPrizes}
+        listType="privilegios"
+      />
 
       <div className="glass-card w-full p-6 md:p-8 wide:p-6">
         <div
@@ -325,13 +356,22 @@ export default function SetupForm() {
                 </button>
               )}
             </div>
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-white/20 p-3 text-sm text-white/60 transition hover:border-primary hover:text-primary"
-            >
-              <Upload size={16} /> Subir CSV / JSON
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-dashed border-white/20 p-3 text-sm text-white/60 transition hover:border-primary hover:text-primary"
+              >
+                <Upload size={16} /> CSV / JSON
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowFirebaseLoader(true)}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-dashed border-white/20 p-3 text-sm text-white/60 transition hover:border-primary hover:text-primary"
+              >
+                <Database size={16} /> Cargar Lista
+              </button>
+            </div>
             <input ref={fileRef} type="file" accept=".csv,.json" className="hidden" onChange={handleFile} />
             <TagInput
               participants={participants}
@@ -354,7 +394,7 @@ export default function SetupForm() {
           <div className="flex-1 min-w-0 space-y-3">
             <div className="flex items-center gap-2 text-accent">
               <Trophy size={20} />
-              <h2 className="text-lg font-semibold">Privilegios</h2>
+              <h2 className="text-lg font-semibold">{preferences.labels.winners}</h2>
               {prizes.length > 0 && (
                 <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs">
                   {prizes.length}
@@ -370,13 +410,20 @@ export default function SetupForm() {
                 </button>
               )}
             </div>
+            <button
+              type="button"
+              onClick={() => setShowFirebaseLoaderPrizes(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-white/20 p-3 text-sm text-white/60 transition hover:border-accent hover:text-accent"
+            >
+              <Database size={16} /> Cargar Lista
+            </button>
             <div className="flex gap-2">
               <input
                 value={newPrize}
                 onChange={(e) => setNewPrize(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addPrize()}
                 enterKeyHint="done"
-                placeholder="Agregar un privilegio..."
+                placeholder={`Agregar ${preferences.labels.winner.toLowerCase()}...`}
                 className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 outline-none focus:border-accent"
               />
               <button
@@ -414,7 +461,7 @@ export default function SetupForm() {
           ? 'Iniciar Juego'
           : participants.length < preferences.minParticipants
             ? `Faltan participantes (${participants.length}/${preferences.minParticipants} mín.)`
-            : 'Agrega al menos 1 privilegio'}
+            : `Agrega al menos 1 ${preferences.labels.winner.toLowerCase()}`}
       </a>
     </div>
   );

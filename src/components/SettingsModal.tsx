@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, ChevronDown, ChevronUp, Minus, Plus } from 'lucide-react';
-import { usePreferences, defaultLabels, type Labels } from '../lib/PreferencesContext';
+import { usePreferences, defaultLabels, PRESETS, type Labels, type PresetId } from '../lib/PreferencesContext';
 import { themes, fontScales, type ThemeId, type FontScale } from '../lib/themes';
 
 interface SettingsModalProps {
@@ -11,6 +11,7 @@ interface SettingsModalProps {
 export default function SettingsModal({ open, onClose }: SettingsModalProps) {
   const {
     preferences,
+    setPreset,
     setTheme,
     setFontScale,
     setConfettiEnabled,
@@ -43,6 +44,27 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
 
         {/* Scrollable content */}
         <div className="overflow-y-auto p-6 pt-4 space-y-6">
+          {/* === MODO SECTION === */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-white/40 uppercase tracking-wider">Modo</h3>
+            <div className="flex gap-2">
+              {(Object.values(PRESETS) as typeof PRESETS[PresetId][]).map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => setPreset(preset.id)}
+                  className={`flex-1 rounded-lg py-2 text-sm font-medium transition ${
+                    preferences.preset === preset.id
+                      ? 'bg-primary text-black'
+                      : 'bg-white/10 text-white/80 hover:bg-white/20'
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* === TEMA SECTION === */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-white/40 uppercase tracking-wider">Tema</h3>

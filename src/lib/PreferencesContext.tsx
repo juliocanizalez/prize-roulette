@@ -8,14 +8,44 @@ export interface Labels {
   winners: string;
 }
 
-export const defaultLabels: Labels = {
-  winnerOf: 'Ganador de',
-  allWinners: 'Todos los Ganadores',
-  winner: 'Ganador',
-  winners: 'Ganadores',
+export type PresetId = 'iglesia' | 'rifa';
+
+export interface PresetConfig {
+  id: PresetId;
+  label: string;
+  appTitle: string;
+  labels: Labels;
+}
+
+export const PRESETS: Record<PresetId, PresetConfig> = {
+  iglesia: {
+    id: 'iglesia',
+    label: 'Iglesia',
+    appTitle: 'Ruleta de Privilegios',
+    labels: {
+      winner: 'Privilegio',
+      winners: 'Privilegios',
+      winnerOf: 'Ganó el privilegio',
+      allWinners: 'Todos los Privilegios',
+    },
+  },
+  rifa: {
+    id: 'rifa',
+    label: 'Rifa',
+    appTitle: 'Ruleta de Premios',
+    labels: {
+      winner: 'Premio',
+      winners: 'Premios',
+      winnerOf: 'Ganó el premio',
+      allWinners: 'Todos los Premios',
+    },
+  },
 };
 
+export const defaultLabels: Labels = { ...PRESETS.iglesia.labels };
+
 export interface Preferences {
+  preset: PresetId;
   theme: ThemeId;
   fontScale: FontScale;
   fullscreenPreferred: boolean;
@@ -29,6 +59,7 @@ export interface Preferences {
 
 interface PreferencesContextValue {
   preferences: Preferences;
+  setPreset: (preset: PresetId) => void;
   setTheme: (theme: ThemeId) => void;
   setFontScale: (scale: FontScale) => void;
   setFullscreenPreferred: (preferred: boolean) => void;
@@ -43,6 +74,7 @@ interface PreferencesContextValue {
 const STORAGE_KEY = 'prize-roulette-prefs';
 
 const defaultPreferences: Preferences = {
+  preset: 'iglesia',
   theme: 'slate',
   fontScale: 'medium',
   fullscreenPreferred: false,
@@ -114,6 +146,16 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     savePreferences(preferences);
   }, [preferences]);
 
+  const setPreset = (preset: PresetId) => {
+    const config = PRESETS[preset];
+    setPreferences((prev) => ({
+      ...prev,
+      preset,
+      appTitle: config.appTitle,
+      labels: { ...config.labels },
+    }));
+  };
+
   const setTheme = (theme: ThemeId) => {
     setPreferences((prev) => ({ ...prev, theme }));
   };
@@ -152,7 +194,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 
   return (
     <PreferencesContext.Provider
-      value={{ preferences, setTheme, setFontScale, setFullscreenPreferred, setConfettiEnabled, setAppTitle, setLabels, setMinParticipants, setSetupSplitRatio, setGameSplitRatio }}
+      value={{ preferences, setPreset, setTheme, setFontScale, setFullscreenPreferred, setConfettiEnabled, setAppTitle, setLabels, setMinParticipants, setSetupSplitRatio, setGameSplitRatio }}
     >
       {children}
     </PreferencesContext.Provider>
